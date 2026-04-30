@@ -1,6 +1,9 @@
+#include <TinyGPS.h>
+
 // telemetry process
 
 // gps process
+TinyGPS gps;
 
 // can process
 
@@ -41,14 +44,15 @@ void setup() {
   constexpr uint8_t TELEM_TX_PIN =      8;
 
   // ADC SPI pins
-  constexpr uint8_t ADC_SCLK_PIN        13;
-  constexpr uint8_t ADC_SDI_PIN         11; // MOSI
+  constexpr uint8_t ADC_SCLK_PIN    =    13;
+  constexpr uint8_t ADC_SDI_PIN      =   11; // MOSI
   constexpr uint8_t ADC_SDO_PIN =       12; // MISO
   constexpr uint8_t CS_PIN =            10;
   constexpr uint8_t RST_PIN =           1;
 
   // serial writing
-  serial.begin(115200);
+  Serial.begin(115200);
+  Serial8.begin(9600); // GPS serial m10 ublox 
 
 }
 
@@ -62,6 +66,23 @@ void loop() {
   // process can data from pinouts
   
   // process gps data
+  while(Serial8.available()) {
+    char c = Serial8.read();
+    if(gps.encode(c)) {
+      long lat, lon;
+      unsigned long age;
+
+      gps.get_position(&lat, &lon, &age);
+
+      if (age != TinyGPS::GPS_INVALID_AGE) {
+        Serial.print("Lat: ");
+        Serial.println(lat / 1000000.0, 6);
+
+        Serial.print("Lon: ");
+        Serial.println(lon / 1000000.0, 6);
+      }
+    }
+  }
 
   // telemetry process
 

@@ -70,7 +70,7 @@ void loop() {
     char c = Serial8.read();
     if(gps.encode(c)) {
       long lat, lon;
-      unsigned long age;
+      unsigned long age; //outputs in ms
 
       gps.get_position(&lat, &lon, &age);
 

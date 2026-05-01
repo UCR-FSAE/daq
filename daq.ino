@@ -1,3 +1,5 @@
+#include "IMU.h"
+
 // telemetry process
 
 // gps process
@@ -11,7 +13,7 @@
 // adc process: ADS8688IDBTR
 
 // imu process: ASM330LHHXTR
-
+IMU ASM330;
 
 void setup() {
   // put your setup code here, to run once:
@@ -22,7 +24,7 @@ void setup() {
   // i2c pins
   constexpr uint8_t SCL_IMU_PIN =       24;
   constexpr uint8_t SDA_IMU_PIN =       25;
-  constexpr uint8_t INT_INU_PIN =       5;
+  constexpr uint8_t INT_IMU_PIN =       5;
   constexpr uint8_t SCL_THERM_PIN =     19;
   constexpr uint8_t SDA_THERM_PIN =     18;
 
@@ -48,12 +50,16 @@ void setup() {
   constexpr uint8_t RST_PIN =           1;
 
   // serial writing
-  serial.begin(115200);
+  Serial.begin(115200);
 
+  ASM330.init();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+
+  // collect IMU data
+  ASM330.read();
 
   // collect adc data from pinouts
 
@@ -67,4 +73,6 @@ void loop() {
 
   // write to sd card
 
+  // FOR IMU once sd code exists use:
+  Serial.print((ASM330.quick_read()).accel[0]);
 }

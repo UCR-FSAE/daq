@@ -1,3 +1,5 @@
+# daq
+
 Thermocouple code uses Adafruit MCP9600 Library. Install via library manager -> search "Adafruit MCP9600"
 
 Device #  | Register Byte | Reg. Val. in Kiloohms | Side

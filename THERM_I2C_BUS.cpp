@@ -4,7 +4,7 @@
 // SDA_THERM_PIN =     18;
 
 THERM_I2C_BUS::THERM_I2C_BUS(){
-  Wire.begin();
+  Wire.begin();  // should correspond to SCL 19 and SDA 18
   for (int i = 0; i < 6; i++) {
     devices[i].begin(device_addresses[i]);
     // devices[i].setThermocoupleType(MCP9600_TYPE_X); FIXME: verify device type

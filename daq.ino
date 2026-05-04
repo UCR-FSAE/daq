@@ -1,3 +1,5 @@
+#include "THERM_I2C_BUS.h"
+
 // telemetry process
 
 // gps process
@@ -7,6 +9,7 @@
 // sd card process
 
 // therm process: MCP96RL00
+THERM_I2C_BUS thermal_bus;
 
 // adc process: ADS8688IDBTR
 
@@ -48,8 +51,7 @@ void setup() {
   constexpr uint8_t RST_PIN =           1;
 
   // serial writing
-  serial.begin(115200);
-
+  Serial.begin(115200);
 }
 
 void loop() {
@@ -58,6 +60,7 @@ void loop() {
   // collect adc data from pinouts
 
   // process thermistor data
+  float* current_tempuratures = thermal_bus.read_thermals();
 
   // process can data from pinouts
   
@@ -66,5 +69,6 @@ void loop() {
   // telemetry process
 
   // write to sd card
+  Serial.print(current_tempuratures[0]);
 
 }

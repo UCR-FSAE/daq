@@ -1,5 +1,13 @@
 #include <TinyGPS.h>
 
+//GLOBAL VARIABLES
+int TEMP1;
+int TEMP2;
+int TEMP3;
+
+// idk if theres only one power
+int POWER;
+
 // telemetry process
 
 // gps process

@@ -1,9 +1,14 @@
 #include <TinyGPS.h>
+#include <FlexCAN_T4.h>
 
 //GLOBAL VARIABLES
-int TEMP1;
-int TEMP2;
-int TEMP3;
+// Temperatures #1
+float moduleA = -999;
+float moduleB = -999;
+float moduleC = -999;
+float gateDriver = -999;
+// Temperatures #3
+float motorTemp = -999;
 
 // idk if theres only one power
 int POWER;
@@ -14,6 +19,15 @@ int POWER;
 TinyGPS gps;
 
 // can process
+FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> Can0;
+//helper functions for can parsing
+int16_t readS16LE(const uint8_t *buf, uint8_t index) {
+  return (int16_t)(((uint16_t)buf[index + 1] << 8) | buf[index]);
+}
+
+float decodeTemp(const uint8_t *buf, uint8_t index) {
+  return readS16LE(buf, index) / 10.0;
+}
 
 // sd card process
 
@@ -62,6 +76,10 @@ void setup() {
   Serial.begin(115200);
   Serial8.begin(9600); // GPS serial m10 ublox 
 
+  // can
+  Can0.begin();
+  Can0.setBaudRate(500000);
+
 }
 
 void loop() {
@@ -72,6 +90,36 @@ void loop() {
   // process thermistor data
 
   // process can data from pinouts
+  // can parser
+  CAN_message_t msg;
+
+  if(Can0.read(msg)) {
+    // temperature #1 section
+    if (msg.id == 0x0A0 && msg.len >= 8) {
+      moduleA    = decodeTemp(msg.buf, 0);
+      moduleB    = decodeTemp(msg.buf, 2);
+      moduleC    = decodeTemp(msg.buf, 4);
+      gateDriver = decodeTemp(msg.buf, 6);
+    }
+    //temperature #3 section
+    else if (msg.id == 0x0A2 && msg.len >= 6) {
+      motorTemp = decodeTemp(msg.buf, 4);
+    }
+  }
+  // highest for temperatures #1 section
+  float highest = moduleA;
+
+  if (moduleB > highest) highest = moduleB;
+  if (moduleC > highest) highest = moduleC;
+  if (gateDriver > highest) highest = gateDriver;
+
+  Serial.print("Highest selected temp (Temperatures #1): ");
+  Serial.print(highest);
+  Serial.println(" C");
+
+  Serial.print("Motor Temperature: ");
+  Serial.print(motorTemp);
+  Serial.println(" C");
   
   // process gps data
   while(Serial8.available()) {

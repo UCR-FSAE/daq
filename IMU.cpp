@@ -4,12 +4,11 @@ void IMU::init() {
   Wire2.begin(); // Wire2 should correspond to SCL 24 and SDA 25
 
   if (_imu.begin() != ASM330LHH_OK) {
-    Serial.println("IMU init failed");  //  I am unsure if printing errors to serial is how we want to debug, keeping a note here to ask
-    while (1); // Also unsure if freezing the program is a good idea here, maybe we should just disable IMU functionality
+    Serial.println("IMU init failed");
+  } else {
+    _imu.Enable_X(); // accelerometer xyz
+    _imu.Enable_G(); // gyro
   }
-
-  _imu.Enable_X(); // accelerometer xyz
-  _imu.Enable_G(); // gyro
 }
 
 IMU_Data IMU::read() {  // Reminder to ask justin: do we want interupt driven data reading? Pin is on the pinout, but is unused in my logic

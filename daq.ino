@@ -48,14 +48,10 @@ void setup() {
   constexpr uint8_t RST_PIN =           1;
 
   // serial writing
-<<<<<<< Updated upstream
   serial.begin(115200);
-=======
   can.begin();
   // telemInit();
   Serial2.begin(57600);
->>>>>>> Stashed changes
-
 }
 
 void loop() {
@@ -67,17 +63,12 @@ void loop() {
   // process thermistor data
 
   // process can data from pinouts
-<<<<<<< Updated upstream
-=======
   // CAN PARSER
   //can.parse_message();
->>>>>>> Stashed changes
   
   // process gps data
 
   // telemetry process
-<<<<<<< Updated upstream
-=======
 
   // telemetry send filtering, telem sends at 57600 baud but teensy runs faster
   // static uint32_t last_send_time = 0;

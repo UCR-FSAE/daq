@@ -7,6 +7,7 @@
 
 // can process
 CanParser can;
+logPacket pkt;
 
 // sd card process
 
@@ -53,6 +54,7 @@ void setup() {
 
   // serial writing
   Serial.begin(115200);
+  telemInit();
 
 }
 
@@ -73,13 +75,7 @@ void loop() {
 
   // telemetry process
   // telemSend(elapsed, ambientC, inletC, inletOk, outletC, outletOk, hz, lpm);
-  telemSend(can.highest, can.motorTemp, can.motorSpeed,
-            can.phaseACurrent, can.phaseBCurrent, can.phaseCCurrent,
-            can.dcBusCurrent, can.dcBusVoltage, can.outputVoltage,
-            can.system12V, can.inverterState, can.inverterEnableLockout,
-            can.postFaultLo, can.postFaultHi, can.runFaultLo, can.runFaultHi,
-            can.commandedTorque, can.torqueFeedback, can.powerOnTimerCounts,
-            can.powerOnTimerSeconds);
+  telemSend(pkt);
 
   // write to sd card
 

@@ -48,11 +48,18 @@ void setup() {
   constexpr uint8_t RST_PIN =           1;
 
   // serial writing
+<<<<<<< Updated upstream
   serial.begin(115200);
+=======
+  can.begin();
+  // telemInit();
+  Serial2.begin(57600);
+>>>>>>> Stashed changes
 
 }
 
 void loop() {
+  //static bool led_on = false;
   // put your main code here, to run repeatedly:
 
   // collect adc data from pinouts
@@ -60,11 +67,38 @@ void loop() {
   // process thermistor data
 
   // process can data from pinouts
+<<<<<<< Updated upstream
+=======
+  // CAN PARSER
+  //can.parse_message();
+>>>>>>> Stashed changes
   
   // process gps data
 
   // telemetry process
+<<<<<<< Updated upstream
+=======
+
+  // telemetry send filtering, telem sends at 57600 baud but teensy runs faster
+  // static uint32_t last_send_time = 0;
+  // uint32_t curr_time = millis();
+  // telemSend();
+  Serial2.println("hi");
+  // if (curr_time - last_send_time >= 100) {  // 100 is 10 Hz
+  //   telemSend(can.highest, can.motorTemp, can.motorSpeed,
+  //             can.phaseACurrent, can.phaseBCurrent, can.phaseCCurrent,
+  //             can.dcBusCurrent, can.dcBusVoltage, can.outputVoltage,
+  //             can.system12V, can.inverterState, can.inverterEnableLockout,
+  //             can.postFaultLo, can.postFaultHi, can.runFaultLo, can.runFaultHi,
+  //             can.commandedTorque, can.torqueFeedback, can.powerOnTimerCounts,
+  //             can.powerOnTimerSeconds);
+  //   last_send_time = curr_time;
+    
+  //   led_on = !led_on;
+  //   digitalWrite(LED_BUILTIN, led_on ? HIGH : LOW);
+    delay(500);
+  // }
+>>>>>>> Stashed changes
 
   // write to sd card
-
 }

@@ -1,3 +1,6 @@
+#include "TELEM.h"
+#include "CANParser.h"
+
 // telemetry process
 
 // gps process
@@ -42,14 +45,14 @@ void setup() {
   // constexpr uint8_t TELEM_TX_PIN =      8;
 
   // ADC SPI pins
-  constexpr uint8_t ADC_SCLK_PIN        13;
-  constexpr uint8_t ADC_SDI_PIN         11; // MOSI
-  constexpr uint8_t ADC_SDO_PIN =       12; // MISO
-  constexpr uint8_t CS_PIN =            10;
-  constexpr uint8_t RST_PIN =           1;
+  // constexpr uint8_t ADC_SCLK_PIN        13;
+  // constexpr uint8_t ADC_SDI_PIN         11; // MOSI
+  // constexpr uint8_t ADC_SDO_PIN =       12; // MISO
+  // constexpr uint8_t CS_PIN =            10;
+  // constexpr uint8_t RST_PIN =           1;
 
   // serial writing
-  serial.begin(115200);
+  Serial.begin(115200);
 
 }
 
@@ -70,7 +73,13 @@ void loop() {
 
   // telemetry process
   // telemSend(elapsed, ambientC, inletC, inletOk, outletC, outletOk, hz, lpm);
-  telemSend(micros(), ambientC, inletC, inletOk, outletC, outletOk, hz, lpm);
+  telemSend(can.highest, can.motorTemp, can.motorSpeed,
+            can.phaseACurrent, can.phaseBCurrent, can.phaseCCurrent,
+            can.dcBusCurrent, can.dcBusVoltage, can.outputVoltage,
+            can.system12V, can.inverterState, can.inverterEnableLockout,
+            can.postFaultLo, can.postFaultHi, can.runFaultLo, can.runFaultHi,
+            can.commandedTorque, can.torqueFeedback, can.powerOnTimerCounts,
+            can.powerOnTimerSeconds);
 
   // write to sd card
 

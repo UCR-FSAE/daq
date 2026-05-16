@@ -5,8 +5,10 @@
 #define TELEM_BAUD    57600
 
 void telemInit();
-void telemSend(unsigned long elapsed,
-               double ambientC,
-               double inletC,   bool inletOk,
-               double outletC,  bool outletOk,
-               float  hz,       float lpm);
+void telemSend(float, float, int16_t,
+               float, float, float,
+               float, float, float,
+               float, int8_t, bool,
+               uint16_t, uint16_t, uint16_t, uint16_t,
+               float, float, uint32_t,
+               float);

@@ -1,17 +1,6 @@
 #include "TELEM.h"
 
 // telemetry process
-radio telem(Serial2); // Serial2 should corrospond to rx 7 and tx 8
-
-void send_CAN_data() {
-  telem.send("Highest selected temp (Temperatures #1): ");
-  telem.send(can.highest);
-  telem.sendln(" C");
-
-  telem.send("Motor Temperature: ");
-  telem.send(can.motorTemp);
-  telem.sendln(" C");
-}
 
 // gps process
 
@@ -62,7 +51,7 @@ void setup() {
 
   // serial writing
   Serial.begin(115200);
-  telem.init();
+  telemInit();
 }
 
 void loop() {
@@ -77,7 +66,7 @@ void loop() {
   // process gps data
 
   // telemetry process
-  send_CAN_data();
+  telemSend(elapsed, ambientC, inletC, inletOk, outletC, outletOk, hz, lpm);
 
   // write to sd card
 

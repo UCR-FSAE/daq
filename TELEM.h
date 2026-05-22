@@ -8,11 +8,10 @@
 #define TELEM_BAUD    57600
 
 void telemInit();
-// void telemSend(float, float, int16_t,
-//                float, float, float,
-//                float, float, float,
-//                float, uint8_t, bool,
-//                uint16_t, uint16_t, uint16_t, uint16_t,
-//                float, float, uint32_t,
-//                float);
-void telemSend();
+void telemSend(float, float, int16_t,
+               float, float, float,
+               float, float, float,
+               float, uint8_t, bool,
+               uint16_t, uint16_t, uint16_t, uint16_t,
+               float, float, uint32_t,
+               float);

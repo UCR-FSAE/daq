@@ -76,7 +76,6 @@ void loop() {
   // telemetry send filtering, telem sends at 57600 baud but teensy runs faster
   static uint32_t last_send_time = 0;
   uint32_t curr_time = millis();
-  // telemSend();
   if (curr_time - last_send_time >= 100) {  // 100 is 10 Hz
     telemSend(can.highest, can.motorTemp, can.motorSpeed,
               can.phaseACurrent, can.phaseBCurrent, can.phaseCCurrent,
@@ -86,7 +85,6 @@ void loop() {
               can.commandedTorque, can.torqueFeedback, can.powerOnTimerCounts,
               can.powerOnTimerSeconds);
     last_send_time = curr_time;
-    delay(500);
   }
 
   // write to sd card

@@ -1,5 +1,5 @@
 #include "TELEM.h"
-#include "CANParser.h"
+#include "CanParser.h"
 
 // telemetry process
 
@@ -7,7 +7,6 @@
 
 // can process
 CanParser can;
-logPacket pkt;
 
 // sd card process
 
@@ -45,7 +44,7 @@ void setup() {
   // constexpr uint8_t TELEM_RX_PIN =      7;
   // constexpr uint8_t TELEM_TX_PIN =      8;
 
-  // ADC SPI pins
+  // // ADC SPI pins
   // constexpr uint8_t ADC_SCLK_PIN        13;
   // constexpr uint8_t ADC_SDI_PIN         11; // MOSI
   // constexpr uint8_t ADC_SDO_PIN =       12; // MISO
@@ -54,8 +53,9 @@ void setup() {
 
   // serial writing
   Serial.begin(115200);
+  can.begin();
   telemInit();
-
+  pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
@@ -69,14 +69,23 @@ void loop() {
   // CAN PARSER
   can.parse_message();
   
-  // test printing can parser output
-  
-  //GPS
+  // process gps data
 
   // telemetry process
-  // telemSend(elapsed, ambientC, inletC, inletOk, outletC, outletOk, hz, lpm);
-  telemSend(pkt);
+
+  // telemetry send filtering, telem sends at 57600 baud but teensy runs faster
+  static uint32_t last_send_time = 0;
+  uint32_t curr_time = millis();
+  if (curr_time - last_send_time >= 100) {  // 100 is 10 Hz
+    telemSend(can.highest, can.motorTemp, can.motorSpeed,
+              can.phaseACurrent, can.phaseBCurrent, can.phaseCCurrent,
+              can.dcBusCurrent, can.dcBusVoltage, can.outputVoltage,
+              can.system12V, can.inverterState, can.inverterEnableLockout,
+              can.postFaultLo, can.postFaultHi, can.runFaultLo, can.runFaultHi,
+              can.commandedTorque, can.torqueFeedback, can.powerOnTimerCounts,
+              can.powerOnTimerSeconds);
+    last_send_time = curr_time;
+  }
 
   // write to sd card
-
 }

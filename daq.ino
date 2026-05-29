@@ -64,15 +64,15 @@ void setup() {
 int readShockPot(int channel) {
   digitalWrite(CS_PIN, LOW);
 
-  // Send Start bits to activate channel
+  // Send start bits to activate channel
   SPI.transfer16(commandByte[channel]);
 
-  // Read the 10 bit value
+  // Clock out dummy bytes (0x00) while reading return data.
+  // Assumes that device responds with 2 bytes after the command.
   short recievedData = SPI.transfer16(0x0000);
 
   digitalWrite (CS_PIN, HIGH);
 
-  // Combine bytes into 10-bit integer
   return recievedData;
 }
 

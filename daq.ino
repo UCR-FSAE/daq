@@ -12,7 +12,7 @@
 // therm process: MCP96RL00
 
 // adc process: ADS8688IDBTR
-const u_int16_t commandByte = [0xC000, 0xC400, 0xC800, 0xCC00];
+const uint16_t commandByte = [0xC000, 0xC400, 0xC800, 0xCC00];
 // imu process: ASM330LHHXTR
 
 

@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include <math.h>
+#include <stdint.h>
 #include <cstddef>
 // telemetry process
 

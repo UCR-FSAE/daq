@@ -80,6 +80,7 @@ void loop() {
   // put your main code here, to run repeatedly:
 
   // collect adc data from pinouts
+  constexpr uint8_t CS_PIN = 10;
   short shockpot[4] = {};
   for (unsigned i = 0; i < 4; i++) {
     shockpot[i] = readShockPot(CS_PIN, i);

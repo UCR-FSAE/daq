@@ -44,9 +44,9 @@ void setup() {
   // constexpr uint8_t TELEM_TX_PIN =      8;
 
   // ADC SPI pins
-  constexpr uint8_t ADC_SCLK_PIN =      13;
-  constexpr uint8_t ADC_SDI_PIN =       11; // MOSI
-  constexpr uint8_t ADC_SDO_PIN =       12; // MISO
+  // constexpr uint8_t ADC_SCLK_PIN =      13;
+  // constexpr uint8_t ADC_SDI_PIN =       11; // MOSI
+  // constexpr uint8_t ADC_SDO_PIN =       12; // MISO
   constexpr uint8_t CS_PIN =            10;
   // constexpr uint8_t RST_PIN =           1;
 
@@ -61,7 +61,7 @@ void setup() {
   SPI.begin();
 }
 
-int readShockPot(int pin, int channel) {
+short readShockPot(int pin, int channel) {
   digitalWrite(pin, LOW);
 
   // Send start bits to activate channel

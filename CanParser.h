@@ -1,3 +1,4 @@
+#pragma once
 #include <FlexCAN_T4.h>
 
 struct CanParser {

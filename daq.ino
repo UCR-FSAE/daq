@@ -1,6 +1,5 @@
 #include <SPI.h>
 #include <stdint.h>
-#include <stddef.h>
 // telemetry process
 
 // gps process
@@ -12,7 +11,13 @@
 // therm process: MCP96RL00
 
 // adc process: ADS8688IDBTR
-const uint16_t commandByte[4] = {0xC000, 0xC400, 0xC800, 0xCC00};
+const uint16_t channelByte[4] = {
+  0xC000, // SHOCK1
+  0xC400, // SHOCK2
+  0xC800, // SHOCK3
+  0xCC00  // SHOCK4
+};
+SPISettings ads8688Settings(10000000, MSBFIRST, SPI_MODE1);
 // imu process: ASM330LHHXTR
 
 
@@ -61,19 +66,27 @@ void setup() {
   SPI.begin();
 }
 
-short readShockPot(int pin, int channel) {
+uint16_t readShockPot(uint8_t pin, unsigned channel) {
+  // Begin SPI transaction with correct speed and mode
+  SPI.beginTransaction(ads8688Settings);
+  
+  // Send Channel Selection Command
   digitalWrite(pin, LOW);
+  SPI.transfer16(channelByte[channel]);
+  digitalWrite(pin, HIGH);
 
-  // Send start bits to activate channel
-  SPI.transfer16(commandByte[channel]);
+  // Small delay
+  delayMicroseconds(1);
 
   // Clock out dummy bytes (0x00) while reading return data.
   // Assumes that device responds with 2 bytes after the command.
-  short recievedData = SPI.transfer16(0x0000);
+  digitalWrite(pin, LOW);
+  uint16_t receivedData = SPI.transfer16(0x0000);
+  digitalWrite(pin, HIGH);
 
-  digitalWrite (pin, HIGH);
+  SPI.endTransaction();
 
-  return recievedData;
+  return receivedData;
 }
 
 void loop() {
@@ -81,7 +94,7 @@ void loop() {
 
   // collect adc data from pinouts
   constexpr uint8_t CS_PIN = 10;
-  short shockpot[4] = {};
+  uint16_t shockpot[4] = {};
   for (unsigned i = 0; i < 4; i++) {
     shockpot[i] = readShockPot(CS_PIN, i);
 
@@ -89,8 +102,7 @@ void loop() {
     Serial.print("Raw shock pot input ");
     Serial.print(i + 1);
     Serial.print(": ");
-    Serial.print(shockpot[i]);
-    Serial.print('\n');
+    Serial.println(shockpot[i]);
   }
 
   delay(1000);

@@ -4,7 +4,7 @@
 
 void telemInit() {
   // for debugging
-  pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, LOW);
+  //pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, LOW);
 
   TELEM_SERIAL.begin(TELEM_BAUD, SERIAL_8N1);
 }
@@ -30,4 +30,8 @@ void telemSend(const CanParser& can) {
   TELEM_SERIAL.print(",torqFb=");      TELEM_SERIAL.print(can.torqueFeedback, 2);
   TELEM_SERIAL.print(",pwrOnCnt=");    TELEM_SERIAL.print(can.powerOnTimerCounts);
   TELEM_SERIAL.print(",pwrOnSec=");    TELEM_SERIAL.println(can.powerOnTimerSeconds, 1);
+}
+
+void telemSendString(const char* s) {
+  TELEM_SERIAL.println(s);
 }

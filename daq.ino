@@ -54,8 +54,14 @@ void setup() {
   // serial writing
   Serial.begin(115200);
   can.begin();
+  delay(100);
+
   telemInit();
+  delay(100);
+
   pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, HIGH);
+  Serial.println("Setup Done");
+  delay(1000);
 }
 
 void loop() {
@@ -77,8 +83,9 @@ void loop() {
   static uint32_t last_send_time = 0;
   uint32_t curr_time = millis();
   if (curr_time - last_send_time >= 100) {
-  telemSend(can);
-  last_send_time = curr_time;
+    telemSend(can);
+    Serial.println("Sent!");
+    last_send_time = curr_time;
   }
 
   // write to sd card

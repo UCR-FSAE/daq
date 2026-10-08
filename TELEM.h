@@ -7,3 +7,4 @@
 
 void telemInit();
 void telemSend(const CanParser& can);
+void telemSendString(const char* s);

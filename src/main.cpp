@@ -1,6 +1,11 @@
 #include <Arduino.h>
+#include "CanParser.h"
+#include "TELEM.h"
 // See "DAQ DOC" for peripheral PNs
 // See "VCU Pinouts" google sheet for pinouts
+
+// can process
+CanParser can;
 
 void setup() {
   // put your setup code here, to run once:
@@ -38,7 +43,15 @@ void setup() {
 
   // serial writing
   Serial.begin(115200);
+  can.begin();
+  delay(100);
 
+  telemInit();
+  delay(100);
+
+  pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, HIGH);
+  Serial.println("Setup done");
+  delay(1000);
 }
 
 void loop() {
@@ -49,12 +62,20 @@ void loop() {
   // collect thermistor data (4x brake pad temps, 2x coolant temps)
 
   // collect can data (CAN lol, im not writing allat)
+  can.parse_message();
   
   // collect gps data (speed, time)
 
   // collect IMU data (longitudinal, lateral, & vertical accel as well as roll pitch & yaw rate)
 
   // write to telemetry
+  static uint32_t last_send_time = 0;
+  uint32_t curr_time = millis();
+  if (curr_time - last_send_time >= 100) {
+    telemSend(can);
+    //Serial.println("Sent!");  // for debugging
+    last_send_time = curr_time;
+  }
 
   // write to sd card
 

@@ -7,7 +7,7 @@
 elapsedMillis current_time_ms;
 
 void setup() {
-    WheelSpeed::begin();
+    
   // put your setup code here, to run once:
   // CAN RX and TX Pinouts
   // constexpr uint8_t TEENSY_RX_PIN =     23;
@@ -29,6 +29,7 @@ void setup() {
   // constexpr uint8_t DIG2_PIN =          30;
   // constexpr uint8_t DIG3_PIN =          31;
   // constexpr uint8_t DIG4_PIN =          32;
+  WheelSpeed::begin(); // ^^^ uses the four digital pins above ^^^
 
   // TELEM pins
   // constexpr uint8_t TELEM_RX_PIN =      7;
@@ -47,18 +48,6 @@ void setup() {
 
 void loop() {
     if (WheelSpeed::update()) {
-
         const auto& ws = WheelSpeed::getData();
-
-        // refer to WheelSpeed.h for RPM/Hz data calls. Example read shown below:
-        // do NOT use Serial for any timing operations, as it can potentially 
-        //introduce delays and affect the accuracy of wheel speed measurements.
-        Serial.printf(
-            "FL: %.1f | FR: %.1f | RL: %.1f | RR: %.1f RPM\n",
-            ws.rpm[WheelSpeed::FL],
-            ws.rpm[WheelSpeed::FR],
-            ws.rpm[WheelSpeed::RL],
-            ws.rpm[WheelSpeed::RR]
-        );
-    }
+    } 
 }

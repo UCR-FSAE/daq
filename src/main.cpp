@@ -1,13 +1,13 @@
+
 #include <Arduino.h>
-#include <elapsedMillis.h>
-// See "DAQ DOC" for peripheral PNs
-// See "VCU Pinouts" google sheet for pinouts
+#include "WheelSpeed.h"
 
 // current_time_ms is always an up-to-date variable storing the elapsed time since startup in milliseconds
 // USE CURRENT_TIME_MS FOR INTERUPT TIMESTAMPS AND DATA SENDING RATES
 elapsedMillis current_time_ms;
 
 void setup() {
+    
   // put your setup code here, to run once:
   // CAN RX and TX Pinouts
   // constexpr uint8_t TEENSY_RX_PIN =     23;
@@ -29,6 +29,7 @@ void setup() {
   // constexpr uint8_t DIG2_PIN =          30;
   // constexpr uint8_t DIG3_PIN =          31;
   // constexpr uint8_t DIG4_PIN =          32;
+  WheelSpeed::begin(); // ^^^ uses the four digital pins above ^^^
 
   // TELEM pins
   // constexpr uint8_t TELEM_RX_PIN =      7;
@@ -46,20 +47,7 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
-  // collect adc data (4x shock pots, 1x steering pot, 1x flow meter)
-
-  // collect thermistor data (4x brake pad temps, 2x coolant temps)
-
-  // collect can data (CAN lol, im not writing allat)
-  
-  // collect gps data (speed, time)
-
-  // collect IMU data (longitudinal, lateral, & vertical accel as well as roll pitch & yaw rate)
-
-  // write to telemetry
-
-  // write to sd card
-
+    if (WheelSpeed::update()) {
+        const auto& ws = WheelSpeed::getData();
+    } 
 }

@@ -50,9 +50,21 @@ void loop() {
 
   // collect can data (CAN lol, im not writing allat)
   
+  // collect wheel speed (4x hall effect sensors)
+  // ~100hz
+  // update_Kalman_Gain(Wheel_Speed)
+
   // collect gps data (speed, time)
+  // ~20hz
+  // update_Kalman_Gain(gps)
+
 
   // collect IMU data (longitudinal, lateral, & vertical accel as well as roll pitch & yaw rate)
+  // ~208hz
+  // update model (remember to use actual dt)
+
+  // Kalman filtering!!!!
+  // read IMU @ 200hz
 
   // write to telemetry
 

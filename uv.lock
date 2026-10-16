@@ -1,0 +1,47 @@
+version = 1
+revision = 3
+requires-python = ">=3.14"
+
+[[package]]
+name = "daq"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "foxglove-sdk" },
+    { name = "pyserial" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "foxglove-sdk", specifier = ">=0.29.2" },
+    { name = "pyserial", specifier = ">=3.5" },
+]
+
+[[package]]
+name = "foxglove-sdk"
+version = "0.29.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/20/d6/5cafed508930a508eb73dc68be98391b53bcf701a8dc992f25827bed75d1/foxglove_sdk-0.29.2.tar.gz", hash = "sha256:b013c3484aaa8ca4aca7a532b29b5ccec94ed52ee1e61852c4742aade1bc67a6", size = 739285, upload-time = "2026-10-13T21:12:57.468Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a4/76/88ecb7f324475c0bc55227db73aaaf527b10ccf8d140209c3702a6519c69/foxglove_sdk-0.29.2-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:27dd08303ada532e1ba850cac92b4e085837054b83175afde86387abf8e3d0b8", size = 17500310, upload-time = "2026-10-13T21:12:34.504Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/b7/2edad4565e375ecddf9fffb66c6a72e9ffdcc5135e0f09d79f4a74c62b7d/foxglove_sdk-0.29.2-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:e97c4199dd05327f593bb77e5e41876cf59512dd8b4cb02e4c89f406f6eaf47c", size = 16096097, upload-time = "2026-10-13T21:12:37.296Z" },
+    { url = "https://files.pythonhosted.org/packages/48/6a/0738da091941c731afd1ba77b193a495e1ce46b1767309f8d8251e034a97/foxglove_sdk-0.29.2-cp310-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3689925be275e8b3a728e10a1397a7eb8ec19d239ccf56486e86faac6220a23d", size = 2362055, upload-time = "2026-10-13T21:12:39.898Z" },
+    { url = "https://files.pythonhosted.org/packages/90/b2/d99ad02fb42bb992316009ae3e749b47d33886bb65c3eb50f5fb1e567f2f/foxglove_sdk-0.29.2-cp310-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:f93af26b523227e58828614788ece9fb61fd8ecae92c59f19eb6cf924139fcd0", size = 2275707, upload-time = "2026-10-13T21:12:41.593Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/23/e869c66c1c70af9993ba329eccbb90581d6be169997ce02369216e5a4d4e/foxglove_sdk-0.29.2-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c91cfc5e449195fd8529b69ee2817a89a41d1592452247783e474e807a198b6c", size = 2265509, upload-time = "2026-10-13T21:12:43.144Z" },
+    { url = "https://files.pythonhosted.org/packages/93/22/e7733a748285bd27554eefa938d4f4bf3b818175aa66f0883f3913a994f7/foxglove_sdk-0.29.2-cp310-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:c662c40120b96714a95342532ce786ee2b35465a9e24de7ea468e012edf5dbac", size = 18993383, upload-time = "2026-10-13T21:12:44.745Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/16/5aea7451fcec83d5c23cca0b48d48545694d5d5e17bcbc72b7f23378ff1d/foxglove_sdk-0.29.2-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:ce2086f50aed69619504d0b4041c1accccf76552123817590d7d694403ef3aa0", size = 18913739, upload-time = "2026-10-13T21:12:47.222Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/4c/357b6246e68c9980a6a67cfb7bc6b0ccc9e0d09fbdbc6a35a5ff974d8ea9/foxglove_sdk-0.29.2-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:2e8633d9539f08dee10386cbdf9b59664455aaf8cd40332085b32194b017e1eb", size = 2548790, upload-time = "2026-10-13T21:12:49.205Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/95/1b4f49476e3ad19c47c2fd98d3de79be387b3daba7628b1da78599acce28/foxglove_sdk-0.29.2-cp310-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:e3608cfc101069b24fc4916422b42e4e6bb8994e23d66d778f2ca52b98d2c518", size = 2554095, upload-time = "2026-10-13T21:12:50.942Z" },
+    { url = "https://files.pythonhosted.org/packages/02/28/cde46bf295a996c85634b3fb1daa726fe11e30f5a2f9f735500c12b74633/foxglove_sdk-0.29.2-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:9875e4e9d6b20abaef93aaf0bd4c0444a6be0ef6a92e070f0f2aeafcb560fc4c", size = 2577130, upload-time = "2026-10-13T21:12:52.227Z" },
+    { url = "https://files.pythonhosted.org/packages/71/49/bdda68e7bc26148e301158fd8377d5efb854d4a0f3058c4baad4e2df0aa8/foxglove_sdk-0.29.2-cp310-abi3-win32.whl", hash = "sha256:52074938b9dd62a6d9a217455747459852e620d91050671650b83ee3e9754e2c", size = 1625728, upload-time = "2026-10-13T21:12:53.457Z" },
+    { url = "https://files.pythonhosted.org/packages/09/41/78212b71521bed112ded0aae9ea31df36c2169b764163068019d7f2f05b7/foxglove_sdk-0.29.2-cp310-abi3-win_amd64.whl", hash = "sha256:44d1cff1565e0b4059dcc0545b81f64af7cfbb4ab981e0c251272704d41103b9", size = 16354853, upload-time = "2026-10-13T21:12:55.276Z" },
+]
+
+[[package]]
+name = "pyserial"
+version = "3.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1e/7d/ae3f0a63f41e4d2f6cb66a5b57197850f919f59e558159a4dd3a818f5082/pyserial-3.5.tar.gz", hash = "sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb", size = 159125, upload-time = "2020-11-23T03:59:15.045Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/bc/587a445451b253b285629263eb51c2d8e9bcea4fc97826266d186f96f558/pyserial-3.5-py2.py3-none-any.whl", hash = "sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0", size = 90585, upload-time = "2020-11-23T03:59:13.41Z" },
+]

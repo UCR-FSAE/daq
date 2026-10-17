@@ -2,13 +2,13 @@
 Note: was working in terminal, not sure how uv stuff will interact with PlatformIO
 
 # Directory of added files
-|--scripts
-|  |- foxglove_test.py  
-|  |- lora_simulator.py  
+|-- scripts  
+|  |-  foxglove_test.py  
+|  |-  lora_simulator.py  
 |  |  
-|- .python-version  
-|- pyproject.toml  
-|- uv.lock  
+|-  .python-version  
+|-  pyproject.toml  
+|-  uv.lock  
 
 Currently, only tested Foxglove implementation through its desktop app on MacOS. 
 Link to download page can be found [here](https://foxglove.dev/download?utm_term=download%20foxglove&utm_campaign=PF-Search_Brand_Sign-Ups&utm_source=adwords&utm_medium=ppc&utm_content=812651119371&hsa_acc=7660688999&hsa_cam=23476036068&hsa_grp=198975492882&hsa_ad=812651119371&hsa_src=g&hsa_tgt=kwd-2336421552850&hsa_kw=download%20foxglove&hsa_mt=e&hsa_net=adwords&hsa_ver=3&gad_source=1&gad_campaignid=23476036068&gbraid=0AAAAABaqO8MFJj3cy3hFAfJNW1bmQdILn&gclid=Cj0KCQjwlsfWBhD4ARIsACL7p1EJDbjT1alJdsYRKZ200tVI3MJoHHi0nx4smSUXI4hzPDLuLf7p3jkaAgzZEALw_wcB)

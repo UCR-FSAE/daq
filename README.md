@@ -2,7 +2,7 @@
 Note: was working in terminal, not sure how uv stuff will interact with PlatformIO
 
 # Directory of added files
-|--scripts &larr; currently here :)  
+|--scripts
 |  |- foxglove_test.py  
 |  |- lora_simulator.py  
 |  |  

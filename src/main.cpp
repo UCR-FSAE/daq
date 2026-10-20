@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "THERM_I2C_BUS.h"
 
 // telemetry process
@@ -44,8 +45,8 @@ void setup() {
   constexpr uint8_t TELEM_TX_PIN =      8;
 
   // ADC SPI pins
-  constexpr uint8_t ADC_SCLK_PIN        13;
-  constexpr uint8_t ADC_SDI_PIN         11; // MOSI
+  constexpr uint8_t ADC_SCLK_PIN  =      13;
+  constexpr uint8_t ADC_SDI_PIN  =       11; // MOSI
   constexpr uint8_t ADC_SDO_PIN =       12; // MISO
   constexpr uint8_t CS_PIN =            10;
   constexpr uint8_t RST_PIN =           1;

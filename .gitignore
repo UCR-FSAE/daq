@@ -53,3 +53,9 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+#Platform io's "build space" dependencies we need to ignore
+.pio/
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/ipch

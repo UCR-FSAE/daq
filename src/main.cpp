@@ -48,7 +48,6 @@ void setup() {
 
   // serial writing
   Serial.begin(115200);
-<<<<<<< HEAD
   can.begin();
   delay(100);
 
@@ -58,8 +57,6 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, HIGH);
   Serial.println("Setup done");
   delay(1000);
-=======
->>>>>>> origin/main
 }
 
 void loop() {

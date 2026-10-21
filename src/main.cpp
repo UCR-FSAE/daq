@@ -1,11 +1,16 @@
 #include <Arduino.h>
 #include "CanParser.h"
 #include "TELEM.h"
+#include <elapsedMillis.h>
 // See "DAQ DOC" for peripheral PNs
 // See "VCU Pinouts" google sheet for pinouts
 
 // can process
 CanParser can;
+
+// current_time_ms is always an up-to-date variable storing the elapsed time since startup in milliseconds
+// USE CURRENT_TIME_MS FOR INTERUPT TIMESTAMPS AND DATA SENDING RATES
+elapsedMillis current_time_ms;
 
 void setup() {
   // put your setup code here, to run once:
@@ -43,6 +48,7 @@ void setup() {
 
   // serial writing
   Serial.begin(115200);
+<<<<<<< HEAD
   can.begin();
   delay(100);
 
@@ -52,6 +58,8 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, HIGH);
   Serial.println("Setup done");
   delay(1000);
+=======
+>>>>>>> origin/main
 }
 
 void loop() {

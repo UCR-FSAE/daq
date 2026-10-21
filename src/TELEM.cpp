@@ -20,7 +20,7 @@ void telemSend(const CanParser& can) {
   TELEM_SERIAL.print(",pFaultLo=");    TELEM_SERIAL.print(can.postFaultLo);
   TELEM_SERIAL.print(",pFaultHi=");    TELEM_SERIAL.print(can.postFaultHi);
   TELEM_SERIAL.print(",rFaultLo=");    TELEM_SERIAL.print(can.runFaultLo);
-  TELEM_SERIAL.print(",rFaultHi=");    TELEM_SERIAL.print(can.runFaultHi);
+  TELEM_SERIAL.print(",rFaultHi=");    TELEM_SERIAL.println(can.runFaultHi);
 
   // TO ADD
   // car speed (from wheel speed & IMU)

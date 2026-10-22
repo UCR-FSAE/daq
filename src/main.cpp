@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <elapsedMillis.h>
+#include "faults.h"
 // See "DAQ DOC" for peripheral PNs
 // See "VCU Pinouts" google sheet for pinouts
 
@@ -61,5 +62,9 @@ void loop() {
   // write to telemetry
 
   // write to sd card
+  // ---- DEMO ONLY (delete once real sensors are wired up) ----
+  if (current_time_ms < 10000) last_wheel_speed_ms = current_time_ms;
+  // ---- END DEMO ----
 
+  checkFaults(current_time_ms);
 }

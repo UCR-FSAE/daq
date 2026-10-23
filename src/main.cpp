@@ -1,65 +1,48 @@
 #include <Arduino.h>
-#include <elapsedMillis.h>
-// See "DAQ DOC" for peripheral PNs
-// See "VCU Pinouts" google sheet for pinouts
+#include "SensorSample.h"
+#include "SDLogger.h"
+// Example integration. WheelSpeed / IMU calls are stubbed so this builds on its own;
+// on the real branch replace the stubs with WheelSpeed::update()/getData() etc.
 
-// current_time_ms is always an up-to-date variable storing the elapsed time since startup in milliseconds
-// USE CURRENT_TIME_MS FOR INTERUPT TIMESTAMPS AND DATA SENDING RATES
-elapsedMillis current_time_ms;
+elapsedMillis daqClock;                    // one shared millisecond clock for all timestamps
+
+SensorSample<CarSpeedData> carSpeed;
+SensorSample<ImuData>      imu;
+
+static const SDLogger::TypeInfo kTypes[] = {
+    {REC_CAR_SPEED, sizeof(CarSpeedData), "car_speed", "<f"},
+    {REC_IMU,       sizeof(ImuData),      "imu",       "<6f"},
+};
+
+// --- stub for WheelSpeed::update(): returns true on a fresh 50 Hz sample ---
+static bool wheelSpeedUpdate(float& speedMps) {
+    static elapsedMillis t; if (t < 20) return false; t = 0;
+    speedMps = 12.3f; return true;
+}
+// --- stub IMU at 100 Hz ---
+static bool imuUpdate(ImuData& d) {
+    static elapsedMillis t; if (t < 10) return false; t = 0;
+    d = {0, 0, 9.81f, 0, 0, 0}; return true;
+}
 
 void setup() {
-  // put your setup code here, to run once:
-  // CAN RX and TX Pinouts
-  // constexpr uint8_t TEENSY_RX_PIN =     23;
-  // constexpr uint8_t TEENSY_TX_PIN =     22;
-
-  // i2c pins
-  // constexpr uint8_t SCL_IMU_PIN =       24;
-  // constexpr uint8_t SDA_IMU_PIN =       25;
-  // constexpr uint8_t INT_INU_PIN =       5;
-  // constexpr uint8_t SCL_THERM_PIN =     19;
-  // constexpr uint8_t SDA_THERM_PIN =     18;
-
-  // GPS pins
-  // constexpr uint8_t GPS_TX_PIN =        35;
-  // constexpr uint8_t GPS_RX_PIN =        34;
-
-  // digital pins
-  // constexpr uint8_t DIG1_PIN =          29;
-  // constexpr uint8_t DIG2_PIN =          30;
-  // constexpr uint8_t DIG3_PIN =          31;
-  // constexpr uint8_t DIG4_PIN =          32;
-
-  // TELEM pins
-  // constexpr uint8_t TELEM_RX_PIN =      7;
-  // constexpr uint8_t TELEM_TX_PIN =      8;
-
-  // ADC SPI pins
-  // constexpr uint8_t ADC_SCLK_PIN =      13;
-  // constexpr uint8_t ADC_SDI_PIN =       11; // MOSI
-  // constexpr uint8_t ADC_SDO_PIN =       12; // MISO
-  // constexpr uint8_t CS_PIN =            10;
-  // constexpr uint8_t RST_PIN =           1;
-
-  // serial writing
-  Serial.begin(115200);
+    Serial.begin(115200);
+    if (!SDLogger::begin(kTypes, sizeof(kTypes) / sizeof(kTypes[0])))
+        Serial.println("SD init failed");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+    float v;
+    if (wheelSpeedUpdate(v)) {                      // WheelSpeed-style: true = new data
+        carSpeed.data.speedMps = v;                 // post-processed car speed only
+        carSpeed.timestampMs = daqClock;
+        carSpeed.newSample = true;
+    }
+    if (imuUpdate(imu.data)) { imu.timestampMs = daqClock; imu.newSample = true; }
 
-  // collect adc data (4x shock pots, 1x steering pot, 1x flow meter)
+    SDLogger::logIfNew(REC_CAR_SPEED, carSpeed);    // writes only if flag set, then clears
+    SDLogger::logIfNew(REC_IMU, imu);
+    SDLogger::service();                            // non-blocking sector write
 
-  // collect thermistor data (4x brake pad temps, 2x coolant temps)
-
-  // collect can data (CAN lol, im not writing allat)
-  
-  // collect gps data (speed, time)
-
-  // collect IMU data (longitudinal, lateral, & vertical accel as well as roll pitch & yaw rate)
-
-  // write to telemetry
-
-  // write to sd card
-
+    // TODO: stop() on LV-off detect so the last buffer is flushed.
 }

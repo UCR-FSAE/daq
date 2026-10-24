@@ -69,8 +69,8 @@ void loop() {
   // collect IMU data (longitudinal, lateral, & vertical accel as well as roll pitch & yaw rate)
 
   // write to telemetry
-  static uin32_t last_send_time = 0;
-  const uin32t_t curr_time = millis();
+  static uint32_t last_send_time = 0;
+  const uint32_t curr_time = millis();
 
   if (curr_time - last_send_time >= 100) {
     last_send_time = curr_time;

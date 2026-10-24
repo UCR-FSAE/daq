@@ -52,6 +52,7 @@ void setup() {
   delay(100);
 
   telemInit();
+  delay(1000);
 
   pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, HIGH);
   Serial.println("Setup done");
@@ -74,13 +75,7 @@ void loop() {
 
   // write to telemetry
   static uint32_t last_send_time = 0;
-  uint32_t curr_time = current_time_ms;
-  if (curr_time - last_send_time >= 100) {
-    telemSend(can);
-    //Serial.println("Sent!");  // for debugging
-    last_send_time = curr_time;
-  }
+  telemSend(can, current_time_ms, last_send_time);
 
   // write to sd card
-
 }

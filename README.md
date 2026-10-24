@@ -1,5 +1,6 @@
 # daq  
-Note: was working in terminal, not sure how uv stuff will interact with PlatformIO  
+Note: NEW BRANCH IS Dana/foxglove-working. GO THERE FOR MOST RECENT DOCUMENTATION. 
+was working in terminal, not sure how uv stuff will interact with PlatformIO  
 Link to Foxglove API can be found [here](https://foxglove-sdk-api-docs.pages.dev/python/api/#foxglove.start_server).
 
 # Directory of added files

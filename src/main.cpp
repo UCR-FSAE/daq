@@ -69,12 +69,12 @@ void loop() {
   // collect IMU data (longitudinal, lateral, & vertical accel as well as roll pitch & yaw rate)
 
   // write to telemetry
-  static uint32_t last_send_time = 0;
-  uint32_t curr_time = millis();
+  static uin32_t last_send_time = 0;
+  const uin32t_t curr_time = millis();
+
   if (curr_time - last_send_time >= 100) {
-    telemSend(can);
-    //Serial.println("Sent!");  // for debugging
     last_send_time = curr_time;
+    telemSend(can);  
   }
 
   // write to sd card

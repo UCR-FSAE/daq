@@ -8,6 +8,20 @@
 // USE CURRENT_TIME_MS FOR INTERUPT TIMESTAMPS AND DATA SENDING RATES
 elapsedMillis current_time_ms;
 
+// ---- DEMO ONLY: fake handlers so you can see the actions fire ----
+// Real ones will live in the telemetry (LoRa) and IMU modules.
+static bool demo_imu_alive = true;
+void demoPitAlert(Fault f, bool active) {
+  Serial.print("  -> PIT ALERT over LoRa: ");
+  Serial.print(faultName(f));
+  Serial.println(active ? " ON" : " cleared");
+}
+void demoRecoverImu() {
+  Serial.println("  -> trying to re-init IMU...");
+  if (current_time_ms > 6500) demo_imu_alive = true;  // pretend the 3rd try works
+}
+// ---- END DEMO ----
+
 void setup() {
   // put your setup code here, to run once:
   // CAN RX and TX Pinouts
@@ -44,6 +58,11 @@ void setup() {
 
   // serial writing
   Serial.begin(115200);
+
+  // ---- DEMO ONLY plug in what "alert pit" and "recover" do (DEMO versions for now)
+  setPitAlertHandler(demoPitAlert);
+  setRecoverHandler(FAULT_IMU_STALE, demoRecoverImu);
+  // ---- END DEMO ----
 }
 
 void loop() {
@@ -62,9 +81,22 @@ void loop() {
   // write to telemetry
 
   // write to sd card
-  // ---- DEMO ONLY (delete once real sensors are wired up) ----
-  if (current_time_ms < 10000) last_wheel_speed_ms = current_time_ms;
-  // ---- END DEMO ----
 
+  // ---- DEMO ONLY (delete once real sensors are wired up) ----
+  // Pretend every sensor is sending data, then break things on purpose:
+  //   4 s: IMU dies      -> IMU_STALE ON (act), recovery retries every 1 s, fixed ~7 s
+  //   8 s: SD write fails -> SD_WRITE_FAIL ON (act) + pit alert, cleared at 9 s
+  //  10 s: wheel speed dies -> WHEEL_SPEED_STALE ON (log only)
+  uint32_t t = current_time_ms;
+  if (t > 4000 && t < 4100) demo_imu_alive = false;
+  if (t < 10000) last_wheel_speed_ms = t;
+  if (demo_imu_alive) last_imu_ms = t;
+  last_adc_ms = last_tc_ms = last_gps_ms = t;
+  last_can_inv_ms = last_can_bms_ms = last_can_vcu_ms = t;
+  if (t >= 8000 && t < 9000) setFault(FAULT_SD_WRITE_FAIL);
+  if (t >= 9000 && hasFault(FAULT_SD_WRITE_FAIL)) clearFault(FAULT_SD_WRITE_FAIL);
+  // ---- END DEMO ---- ------ --------       --       -    -
+
+  // check for faults + run their actions (keep this at the end of loop)
   checkFaults(current_time_ms);
 }

@@ -17,3 +17,20 @@ Link to download page can be found [here](https://foxglove.dev/download?utm_term
 If want to run files in script folder, run `uv run python3 scripts/<file name>` in root. In the Foxglove app, click on __Open Connection__ and select ws://127.0.0.1:8765. ws://127.0.0.1:8765 is the default WebSocket server address and port used by Foxglove.
 - foxglove_test.py simulates data to Foxglove
 - lora_simulator.py simulates behavior of radio link to Foxglove
+
+# Visualizations
+seq  
+uptime_ms  
+timestamp_ms  
+timestamp_utc  
+motor_temp_c  
+inverter_temp_c  
+highest_subpack_temp_c  
+speed_kph  
+motor_rpm  
+can_current_a  
+rms_current_a  
+pack_voltage_v  
+rms_voltage_v  
+power_w  
+soc_pct  

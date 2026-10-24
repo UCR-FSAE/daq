@@ -52,7 +52,6 @@ void setup() {
   delay(100);
 
   telemInit();
-  while (!Serial && current_time_ms < 5000) {}
 
   pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, HIGH);
   Serial.println("Setup done");

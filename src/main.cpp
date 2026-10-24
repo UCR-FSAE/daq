@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "GPS.h"
 #include <elapsedMillis.h>
 // See "DAQ DOC" for peripheral PNs
 // See "VCU Pinouts" google sheet for pinouts
@@ -6,6 +7,8 @@
 // current_time_ms is always an up-to-date variable storing the elapsed time since startup in milliseconds
 // USE CURRENT_TIME_MS FOR INTERUPT TIMESTAMPS AND DATA SENDING RATES
 elapsedMillis current_time_ms;
+
+TinyGPS NEO_M8N;
 
 void setup() {
   // put your setup code here, to run once:
@@ -43,6 +46,8 @@ void setup() {
 
   // serial writing
   Serial.begin(115200);
+  
+  gps::gpsInit();
 }
 
 void loop() {

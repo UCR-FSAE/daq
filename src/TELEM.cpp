@@ -7,6 +7,7 @@ void telemInit() {
   //pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, LOW);
 
   TELEM_SERIAL.begin(TELEM_BAUD, SERIAL_8N1);
+  while (!TELEM_SERIAL && current_time_ms < 5000) {}
 }
 
 void telemSend(const CanParser& can) {

@@ -2,7 +2,7 @@
 ## What are we doing?  
 We want to receive live vehicle telemetry over LoRa (long range radio frequency) and visualize it in Foxglove, a platform popular in robotics and autonomous vehicles to view sensor data.  
 
-For example, we want to view data like inverter temperature or car speed in live time without being physically connected to the car. This is important as it ensures pit crews are prepared to fix issues before the car returns.  
+For example, we want to view telemetry like inverter temperature or car speed in real-time without being physically connected to the car. This is important as it ensures pit crews are prepared to fix issues before the car returns.  
 
 But what exactly is the whole step-by-step process that allows us to go from the data being recorded by the peripherals, e.g. inverter, sensors, etc, to Foxglove?   
 1. A peripheral sends a Controller Area Network (CAN) frame. For example, this might be the inverter sending a CAN frame which contains the motor temperature among other stuff.  

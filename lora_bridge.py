@@ -4,7 +4,7 @@
 Expected serial record:
 highestTemp=42.5,motorTemp=58.2,motorRPM=3200,dcI=60.00,dcV=359.40
 
-The firmware sends comma-separated key=value pairs, NOT JSON.
+The firmware sends comma-separated key=value pairs.
 """
 
 import argparse

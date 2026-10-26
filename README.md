@@ -31,7 +31,7 @@ Since you are already in the `daq` repository on the `Dana/foxglove-working` bra
 ### Connect the LoRa receiver
 The receiver needs to appear as a serial device on the computer. 
 - On macOS, make sure the receiver is connected, and run `ls /dev/cu*`. Several pathways will likely appear, but focus on the one that starts with `/dev/cu.usb-serial-XXXX` with the XXXX being used as placeholder for four numbers, e.g. 0001, which will depend on the adapter and driver.  
-- On Windows, you will likely need to install a driver first, so start by downloading [Silicon Labs CP210x Universal Windows Driver](https://micoair.com/downloads/). Make sure the receiver is connected, and open `Device Manager` on your UI. Expand `Ports (COM & LPT)` and find the receiver or USB serial adaptor which should have a COM port listed next to it e.g. COM3.  
+- On Windows, you will likely need to install a driver first, so start by downloading Silicon Labs CP210x Universal Windows Driver [here](https://micoair.com/downloads/). Make sure the receiver is connected, and open `Device Manager` on your UI. Expand `Ports (COM & LPT)` and find the receiver or USB serial adaptor which should have a COM port listed next to it e.g. COM3.  
 ### Run `lora_bridge.py`
 Keep the LoRa receiver connected and run `lora_bridge.py` in root i.e. do not `cd` into any subdirectories like `src` or `include`. 
 - On macOS, run `uv run python lora_bridge.py --port /dev/cu.usbserial-XXXX --baud 57600` with XXXX being used as placeholder here for four numbers that depend on your adapter and driver. Please replace XXXX before running the command.

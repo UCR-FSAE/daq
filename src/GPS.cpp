@@ -22,19 +22,22 @@ void gps::gpsInit(elapsedMillis* daq_time) {
 
 bool gps::update() {
   bool updated = false;
+
   while(GPS_SERIAL.available()) {  // technically non-blocking because buffer is fixed at 2048, need to make sure this doesn't cause issues
-    updated = NEO_M8N.encode(GPS_SERIAL.read());
+    if (NEO_M8N.encode(GPS_SERIAL.read())){
+      updated = true;
+    }
   }
 
-  if (updated){
-    unsigned long gps_time_utc; // returns a single value hhmmsscc, so 12:34:56.78 is 12345678
+  if (!updated) return false;
 
-    NEO_M8N.get_datetime(NULL, &gps_time_utc, &data.age);
-    data.daq_ms = (utcToMs(gps_time_utc) - utcToMs(start_time_utc)) + start_time_ms - GPS_DELAY;
-    data.speed = NEO_M8N.f_speed_mph();
-  }
+  unsigned long gps_time_utc; // returns a single value hhmmsscc, so 12:34:56.78 is 12345678
 
-  return updated;
+  NEO_M8N.get_datetime(NULL, &gps_time_utc, &data.age);
+  data.daq_ms = (utcToMs(gps_time_utc) - utcToMs(start_time_utc)) + start_time_ms - GPS_DELAY;
+  data.speed = NEO_M8N.f_speed_mph();
+
+  return true;
 }
 
 gps::Measurement& gps::getData(){

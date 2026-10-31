@@ -1,86 +1,52 @@
-namespace {
+#include <GPS.h>
 
-void printPacificTime(byte hour, byte minute, byte second) {
-  int pacificHour = hour - 7; // PDT. Use -8 for PST.
+TinyGPS NEO_M8N;
+unsigned long start_time_utc = 0;  // want to sync the time since starting in ms on daq & gps
+unsigned long start_time_ms = 0;
+gps::Measurement data = {};
 
-  if (pacificHour < 0) {
-    pacificHour += 24;
-  }
+void gps::gpsInit(elapsedMillis* daq_time) {
+  // figure out how to only recieve speed and time from the NEO-M8N chip
 
-  String ampm = "AM";
+  // Adding size to the gps serial buffer in case other code (ie sd card) stalls
+  static uint8_t gpsExtra[2048];
+  GPS_SERIAL.addMemoryForRead(gpsExtra, sizeof(gpsExtra));
 
-  if (pacificHour >= 12) {
-    ampm = "PM";
-  }
+  GPS_SERIAL.begin(GPS_BAUD);
 
-  int displayHour = pacificHour % 12;
-
-  if (displayHour == 0) {
-    displayHour = 12;
-  }
-
-  Serial.print("Pacific Time: ");
-
-  if (displayHour < 10) Serial.print("0");
-  Serial.print(displayHour);
-
-  Serial.print(":");
-
-  if (minute < 10) Serial.print("0");
-  Serial.print(minute);
-
-  Serial.print(":");
-
-  if (second < 10) Serial.print("0");
-  Serial.print(second);
-
-  Serial.print(" ");
-  Serial.println(ampm);
+  // safety read to initialize gps timestamps
+  while(GPS_SERIAL.available() && !NEO_M8N.encode(GPS_SERIAL.read())) {}
+  start_time_ms = *daq_time;
+  NEO_M8N.get_datetime(NULL, &start_time_utc, NULL);
 }
 
-while(Serial8.available()) {
-    char c = Serial8.read();
-    if(gps.encode(c)) {
-      long lat, lon;
-      unsigned long age; //outputs in ms
-      int year;
-      byte month, day;
-      byte hour, minute, second, hundredths;
-      float speedMPH = gps.f_speed_mph();
+bool gps::update() {
+  bool updated = false;
+  while(GPS_SERIAL.available()) {  // technically non-blocking because buffer is fixed at 2048, need to make sure this doesn't cause issues
+    updated = NEO_M8N.encode(GPS_SERIAL.read());
+  }
 
+  if (updated){
+    unsigned long gps_time_utc; // returns a single value hhmmsscc, so 12:34:56.78 is 12345678
 
-      gps.get_position(&lat, &lon);
-      gps.crack_datetime(
-        &year,
-        &month,
-        &day,
-        &hour,
-        &minute,
-        &second,
-        &hundredths,
-        &age
-      );
+    NEO_M8N.get_datetime(NULL, &gps_time_utc, &data.age);
+    data.daq_ms = (utcToMs(gps_time_utc) - utcToMs(start_time_utc)) + start_time_ms - GPS_DELAY;
+    data.speed = NEO_M8N.f_speed_mph();
+  }
 
-
-      if (age != TinyGPS::GPS_INVALID_AGE) {
-        Serial.print("Lat: ");
-        Serial.println(lat / 1000000.0, 6);
-
-        Serial.print("Lon: ");
-        Serial.println(lon / 1000000.0, 6);
-
-        Serial.print("Speed (MPH): ");
-        Serial.println(speedMPH);
-
-        printPacificTime(hour, minute, second);
-      }
-    }
+  return updated;
 }
 
-void gpsInit() {
-    GPS_SERIAl.begin(GPS_BAUD);
+gps::Measurement& gps::getData(){
+  return data;
 }
 
-bool update();
+// helper, converts hhmmsscs (utc) time into miliseconds elapsed since midnight
+uint32_t utcToMs(uint32_t utc_time) {
+  uint8_t hh = utc_time / 1000000;
+  uint8_t mm = (utc_time / 10000) % 100;
+  uint8_t ss = (utc_time / 100) % 100;
+  uint8_t cs = utc_time % 100;
 
-} // namespace gps
+  return ((hh * 60UL + mm) * 60UL + ss) * 1000UL + cs * 10UL;
+}

@@ -8,8 +8,6 @@
 // USE CURRENT_TIME_MS FOR INTERUPT TIMESTAMPS AND DATA SENDING RATES
 elapsedMillis current_time_ms;
 
-TinyGPS NEO_M8N;
-
 void setup() {
   // put your setup code here, to run once:
   // CAN RX and TX Pinouts
@@ -47,7 +45,7 @@ void setup() {
   // serial writing
   Serial.begin(115200);
   
-  gps::gpsInit();
+  gps::gpsInit(&current_time_ms);
 }
 
 void loop() {
@@ -60,6 +58,9 @@ void loop() {
   // collect can data (CAN lol, im not writing allat)
   
   // collect gps data (speed, time)
+  if (gps::update()) {
+    const auto& gps_data = gps::getData();
+  }
 
   // collect IMU data (longitudinal, lateral, & vertical accel as well as roll pitch & yaw rate)
 

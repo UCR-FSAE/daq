@@ -4,9 +4,19 @@
 // See "DAQ DOC" for peripheral PNs
 // See "VCU Pinouts" google sheet for pinouts
 
+#define int_pin 2
+
 // current_time_ms is always an up-to-date variable storing the elapsed time since startup in milliseconds
 // USE CURRENT_TIME_MS FOR INTERUPT TIMESTAMPS AND DATA SENDING RATES
 elapsedMillis current_time_ms;
+gps::Measurement gps_data;
+
+void print_timepulse() {
+  Serial.print('i');
+  Serial.print(current_time_ms);
+  Serial.println();
+}
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -44,6 +54,8 @@ void setup() {
 
   // serial writing
   Serial.begin(115200);
+
+  attachInterrupt(digitalPinToInterrupt(int_pin), print_timepulse, RISING);
   
   gps::gpsInit(&current_time_ms);
 }
@@ -59,7 +71,12 @@ void loop() {
   
   // collect gps data (speed, time)
   if (gps::update()) {
-    const auto& gps_data = gps::getData();
+    gps_data = gps::getData();
+    Serial.print("utc");
+    Serial.println(gps_data.daq_ms);
+    Serial.print("gps");
+    Serial.print(current_time_ms);
+    Serial.println();
   }
 
   // collect IMU data (longitudinal, lateral, & vertical accel as well as roll pitch & yaw rate)

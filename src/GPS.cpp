@@ -34,7 +34,7 @@ bool gps::update() {
   unsigned long gps_time_utc; // returns a single value hhmmsscc, so 12:34:56.78 is 12345678
 
   NEO_M8N.get_datetime(NULL, &gps_time_utc, &data.age);
-  data.daq_ms = (utcToMs(gps_time_utc) - utcToMs(start_time_utc)) + start_time_ms - GPS_DELAY;
+  data.daq_ms = gps_time_utc;
   data.speed = NEO_M8N.f_speed_mph();
 
   return true;

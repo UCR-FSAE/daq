@@ -20,6 +20,14 @@ void demoRecoverImu() {
   Serial.println("  -> trying to re-init IMU...");
   if (current_time_ms > 6500) demo_imu_alive = true;  // pretend the 3rd try works
 }
+void demoSdLog(FaultRecord type, uint32_t time_ms, const void *data, uint8_t len) {
+  (void)time_ms; (void)data;  // the real one passes these to SDLogger::writeRecord
+  Serial.print("  -> SD LOG: ");
+  Serial.print(type == FREC_DAQ_FAULTS ? "DAQ faults" : "inverter faults");
+  Serial.print(", ");
+  Serial.print(len);
+  Serial.println(" bytes");
+}
 // ---- END DEMO ----
 
 void setup() {
@@ -62,6 +70,7 @@ void setup() {
   // ---- DEMO ONLY plug in what "alert pit" and "recover" do (DEMO versions for now)
   setPitAlertHandler(demoPitAlert);
   setRecoverHandler(FAULT_IMU_STALE, demoRecoverImu);
+  setLogHandler(demoSdLog);
   // ---- END DEMO ----
 }
 
@@ -83,19 +92,29 @@ void loop() {
   // write to sd card
 
   // ---- DEMO ONLY (delete once real sensors are wired up) ----
-  // Pretend every sensor is sending data, then break things on purpose:
-  //   4 s: IMU dies      -> IMU_STALE ON (act), recovery retries every 1 s, fixed ~7 s
-  //   8 s: SD write fails -> SD_WRITE_FAIL ON (act) + pit alert, cleared at 9 s
-  //  10 s: wheel speed dies -> WHEEL_SPEED_STALE ON (log only)
+  // Simulate sensor data, then trigger faults:
+  //  4 s: IMU stops -> IMU_STALE ON, retry every 1 s, fixed at ~7 s
+  //  5 s: Inverter over-current -> logged via 0x0AB, cleared at 6 s
+  //  8 s: SD write fails -> SD_WRITE_FAIL ON + pit alert, cleared at 9 s
+  // 10 s: GPS stops -> GPS_STALE ON at ~13 s (3 s timeout, log only), stays on
+  // 15 s: VCU goes silent on CAN -> CAN_VCU_STALE ON ~100 ms later + pit alert
+  // 17 s: ADC also stops -> ADC_STALE ON; ALL FAULTS shows 3 faults at once
+  // 19 s: VCU back -> CAN_VCU_STALE cleared, ADC + GPS stay on
+  // 21 s: ADC back -> ADC_STALE cleared, only GPS left
   uint32_t t = current_time_ms;
   if (t > 4000 && t < 4100) demo_imu_alive = false;
-  if (t < 10000) last_wheel_speed_ms = t;
   if (demo_imu_alive) last_imu_ms = t;
-  last_adc_ms = last_tc_ms = last_gps_ms = t;
-  last_can_inv_ms = last_can_bms_ms = last_can_vcu_ms = t;
+  if (t < 10000) last_gps_ms = t;
+  if (t < 15000 || t >= 19000) last_can_vcu_ms = t;  // VCU silent 15-19 s
+  if (t < 17000 || t >= 21000) last_adc_ms = t;      // ADC silent 17-21 s
+  last_tc_ms = t;
+  last_can_inv_ms = last_can_bms_ms = t;
   if (t >= 8000 && t < 9000) setFault(FAULT_SD_WRITE_FAIL);
   if (t >= 9000 && hasFault(FAULT_SD_WRITE_FAIL)) clearFault(FAULT_SD_WRITE_FAIL);
-  // ---- END DEMO ---- ------ --------       --       -    -
+// Simulate 0x0AB each loop; real code calls this when CanParser receives 0x0AB.
+  uint16_t demo_run_lo = (t >= 5000 && t < 6000) ? 0x0002 : 0;  // byte 4 bit 1 = over-current
+  logInverterFaults(0, 0, demo_run_lo, 0, t);
+  // ---- END DEMO ----
 
   // check for faults + run their actions (keep this at the end of loop)
   checkFaults(current_time_ms);

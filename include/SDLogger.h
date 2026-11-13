@@ -49,6 +49,8 @@ constexpr size_t   SECTOR         = 512;
 constexpr uint32_t SYNC_PERIOD_MS = 1000;        // pad + flush + sync every second -> power cut loses <= ~1 s
 constexpr uint8_t  FILE_POOL      = 2;           // [current, spare] (issue #513 file array)
 
+static_assert(SDLOG_FILE_BYTES >= 4 * RING_BUF_SIZE, "parts must be much bigger than the RAM buffer");
+
 struct TypeInfo { uint8_t id; uint8_t len; const char* name; const char* fmt; };
 
 struct HeaderInfo {
@@ -64,7 +66,8 @@ struct Stats {
     uint32_t writeErrors;     // failed writeOut / sync / open / preallocate
     uint32_t maxBufUsed;      // RingBuf high-water mark (bytes) since boot
     uint32_t bufUsed;         // bytes waiting in RAM right now
-    uint32_t maxServiceUs;    // longest single service() call (card stall indicator)
+    uint32_t maxServiceUs;    // longest sector write / sync in service() (card stall indicator)
+    uint32_t lastPreallocMs;  // how long preallocating the last spare part took (blocks loop once per part)
     uint32_t freeMB;          // estimated free space on the card
     uint32_t bootNo;
     uint16_t part;

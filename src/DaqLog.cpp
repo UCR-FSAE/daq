@@ -127,11 +127,11 @@ static void writeStatus(uint32_t now) {
 #if DAQLOG_SERIAL_STATUS
     // e.g. STATUS t=12000 sd=ok boot=3 part=0 free=3712MB buf=1024/65536 drop=0 err=0 faults=0x00000008 | car_speed=OK imu=STALE gps=ABSENT ...
     if (Serial) {
-        Serial.printf("STATUS t=%lu sd=%s boot=%lu part=%u free=%ldMB buf=%lu/%lu max=%lu drop=%lu err=%lu svc=%luus faults=0x%08lX |",
+        Serial.printf("STATUS t=%lu sd=%s boot=%lu part=%u free=%ldMB buf=%lu/%lu max=%lu drop=%lu err=%lu svc=%luus prealloc=%lums faults=0x%08lX |",
                       (unsigned long)now, s.ok ? "ok" : (s.full ? "FULL" : "DOWN"), (unsigned long)s.bootNo, s.part,
                       s.freeMB == 0xFFFFFFFFUL ? -1L : (long)s.freeMB, (unsigned long)s.bufUsed,
                       (unsigned long)SDLogger::RING_BUF_SIZE, (unsigned long)s.maxBufUsed, (unsigned long)s.droppedBytes,
-                      (unsigned long)s.writeErrors, (unsigned long)s.maxServiceUs, (unsigned long)d.faults);
+                      (unsigned long)s.writeErrors, (unsigned long)s.maxServiceUs, (unsigned long)s.lastPreallocMs, (unsigned long)d.faults);
         for (uint8_t i = 0; i < SensorHealth::count(); i++) {
             const bool p = d.presentMask & (1u << i), a = d.aliveMask & (1u << i);
             Serial.printf(" %s=%s", SensorHealth::names()[i], a ? "OK" : (p ? "STALE" : "ABSENT"));

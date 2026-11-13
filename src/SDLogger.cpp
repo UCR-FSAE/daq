@@ -209,14 +209,17 @@ static void padToSector() {
     }
 }
 
+static uint32_t lastPreallocMs = 0;
+
 static void armSpare() {
-    if (millis() - lastArmTryMs < ARM_RETRY_MS && lastArmTryMs != 0) return;
     lastArmTryMs = millis();
     if (nextPart > MAX_PART) { full = true; return; }
     ensureRoom();
     const uint8_t spare = cur ^ 1;
+    const uint32_t t0 = millis();
     if (openPart(spare, nextPart)) { sparePart = nextPart++; spareReady = true; lastArmTryMs = 0; }
-    else full = true;   // card full (and deleting is off) or FS error; current part keeps going until its cap
+    else full = true;
+    lastPreallocMs = millis() - t0;   // card full (and deleting is off) or FS error; current part keeps going until its cap
 }
 
 static void rotate() {
@@ -233,29 +236,36 @@ static void rotate() {
     rotatePending = false;
 }
 
+static bool armDue() {
+    return lastArmTryMs == 0 || millis() - lastArmTryMs >= ARM_RETRY_MS;
+}
+
 void service() {
     if (!running) return;
-    const uint32_t t0 = micros();
     if ((SDLOG_FILE_MAX_MS) != 0 && !rotatePending && millis() - fileStartMs >= SDLOG_FILE_MAX_MS) rotatePending = true;
     if (!syncPending && sinceSync >= SYNC_PERIOD_MS) { padToSector(); syncPending = true; }
 
-    if (!files[cur].isBusy()) {
+    if (files[cur].isBusy()) return;
+    const bool idle = rb.bytesUsed() < IDLE_BUF_BYTES;
+    if (rb.bytesUsed() >= SECTOR) {
         // TeensySdioLogger pattern: one 512 B sector, only when the card is idle.
-        if (rb.bytesUsed() >= SECTOR) {
-            if (rb.writeOut(SECTOR) != SECTOR) { fail(); return; }
-        } else if (syncPending) {
-            if (!files[cur].sync()) writeErrors++;
-            syncPending = false; sinceSync = 0;
-        } else if (rotatePending) {
-            rotate();
-        } else if (!spareReady && rb.bytesUsed() < IDLE_BUF_BYTES) {
-            armSpare();
-        } else if (!freeKnown && rb.bytesUsed() < IDLE_BUF_BYTES) {
-            computeFree();
-        }
+        const uint32_t t0 = micros();
+        if (rb.writeOut(SECTOR) != SECTOR) { fail(); return; }
+        const uint32_t dt = micros() - t0;
+        if (dt > maxServiceUs) maxServiceUs = dt;
+    } else if (syncPending) {
+        const uint32_t t0 = micros();
+        if (!files[cur].sync()) writeErrors++;
+        syncPending = false; sinceSync = 0;
+        const uint32_t dt = micros() - t0;
+        if (dt > maxServiceUs) maxServiceUs = dt;
+    } else if (rotatePending && spareReady) {
+        rotate();
+    } else if (!spareReady && idle && armDue()) {
+        armSpare();                    // the one slow step (preallocate 64 MiB); timed separately
+    } else if (!freeKnown && idle) {
+        computeFree();
     }
-    const uint32_t dt = micros() - t0;
-    if (dt > maxServiceUs) maxServiceUs = dt;
 }
 
 void stop() {
@@ -272,6 +282,7 @@ Stats stats() {
     s.maxServiceUs = maxServiceUs;
     s.freeMB = freeKnown ? (uint32_t)(freeEst >> 20) : 0xFFFFFFFFUL;
     s.bootNo = bootNo; s.part = curPart; s.fileBytes = fileBytes; s.startupMs = startupMs;
+    s.lastPreallocMs = lastPreallocMs;
     s.ok = running; s.full = full;
     return s;
 }

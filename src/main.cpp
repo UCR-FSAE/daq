@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "THERM_I2C_BUS.h"
+#include "FLOW.h"
 
 // telemetry process
 
@@ -11,6 +12,9 @@
 
 // therm process: MCP96RL00
 THERM_I2C_BUS thermal_bus;
+
+// flow meter process: hall-effect turbine on DIG1 (pin 29), 450 pulses/L
+FLOW flow_meter(29);
 
 // adc process: ADS8688IDBTR
 
@@ -53,6 +57,9 @@ void setup() {
 
   // serial writing
   Serial.begin(115200);
+
+  // flow meter: attach interrupt and start timing
+  flow_meter.begin();
 }
 
 void loop() {
@@ -71,5 +78,11 @@ void loop() {
 
   // write to sd card
   Serial.print(current_tempuratures[0]);
+
+  // process flow meter data
+  float flow_lpm = flow_meter.read_flow_lpm();
+  Serial.print(" Flow: ");
+  Serial.print(flow_lpm);
+  Serial.println(" L/min");
 
 }

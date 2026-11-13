@@ -10,8 +10,18 @@ v2 files are rolling parts (LOGbbbbb_ppp.BIN). Parts of the same boot are stitch
 together in part order, so one boot = one set of outputs:
   outdir/boot_bbbbb/<record>.csv      every record type, named columns
   outdir/boot_bbbbb/faults.csv        fault ON/cleared events named from the header
-  outdir/boot_bbbbb/boot_bbbbb.xlsx   Summary, Faults, Status and one sheet per record
+  outdir/boot_bbbbb/all_data.csv      every decoded record in one time-sorted table
+  outdir/boot_bbbbb/boot_bbbbb.xlsx   Summary, All Data (every record, time-sorted),
+                                      Faults, Status and one sheet per record
   outdir/boot_bbbbb/*.png             speed/IMU, sensor health, SD buffer, fault timeline
+
+The All Data sheet (and all_data.csv) has one row per decoded record across every
+record type: sensors, IMU, status, faults, and anything else in the log. Pad records
+are skipped. Columns are t_ms, t_s, part, type, then the union of every field across
+all types (blank if that field does not apply to the row). Fault rows also carry
+readable what/state/detail. If the table is larger than Excel's 1,048,576-row cap,
+it continues on "All Data 2", "All Data 3", and so on; all_data.csv always has
+everything.
 
 Needs: matplotlib, openpyxl (pip install matplotlib openpyxl) for plots / Excel.
 """
@@ -20,7 +30,11 @@ from collections import defaultdict
 
 MAGIC = b"FSAEDAQ\0"
 REC_PAD = 0
-EXCEL_MAX_ROWS = 1_000_000      # Excel's limit is 1,048,576; the CSV always has everything
+# Excel's hard cap is 1,048,576 rows including the header. Per-type sheets still
+# truncate a little earlier; All Data splits onto extra sheets instead.
+EXCEL_MAX_ROWS = 1_000_000
+EXCEL_SHEET_ROWS = 1_048_576
+EXCEL_ALL_DATA_MAX_ROWS = EXCEL_SHEET_ROWS - 1
 
 # Column names for known record types (falls back to v0, v1, ...).
 FIELDS = {
@@ -169,6 +183,122 @@ def status_table(rows, sensors):
     return ["t_ms"] + cols + sensors, out
 
 
+def all_data_columns(types, sensors):
+    """t_ms, t_s, part, type, then the union of every field across all record types."""
+    cols = ["t_ms", "t_s", "part", "type"]
+    seen = set(cols)
+
+    def add(name):
+        if name not in seen:
+            cols.append(name)
+            seen.add(name)
+
+    for tid, (ln, name, fmt) in sorted(types.items()):
+        for c in columns(name, fmt, ln)[1:]:
+            add(c)
+    for s in sensors:
+        add(s)
+    for c in ("what", "state", "detail"):
+        add(c)
+    return cols
+
+
+def _fault_readable(name, rec, fault_names, prev_bits):
+    """Readable what/state/detail for one fault_* record. Returns (what, state, detail, new_prev)."""
+    if name == "fault_daq":
+        bits = rec[1]
+        ch = bits ^ prev_bits
+        changes = []
+        for i in range(32):
+            if ch & (1 << i):
+                fname = fault_names[i] if i < len(fault_names) else "FAULT_%d" % i
+                changes.append((fname, "ON" if bits & (1 << i) else "cleared"))
+        what = ", ".join(c[0] for c in changes)
+        state = ", ".join(c[1] for c in changes) if changes else ("ON" if bits else "cleared")
+        return what, state, "0x%08X" % bits, bits
+    if name == "fault_inv":
+        post = (rec[2] << 16) | rec[1]
+        run = (rec[4] << 16) | rec[3]
+        return "INVERTER", "raw", "post=0x%08X run=0x%08X" % (post, run), prev_bits
+    if name == "pit_alert":
+        fname = fault_names[rec[1]] if rec[1] < len(fault_names) else "FAULT_%d" % rec[1]
+        detail = "sent over LoRa" if rec[3] else "LoRa absent, SD only"
+        return "PIT_ALERT " + fname, "ON" if rec[2] else "cleared", detail, prev_bits
+    return "", "", "", prev_bits
+
+
+def build_all_data(parts, types, sensors, fault_names):
+    """One time-sorted row per decoded record (pads already dropped in decode_file).
+
+    parts is a list of (meta, typemap, rows) in part order. Each row is
+    [t_ms, t_s, part, type, ...union fields...]. Blank cells are "".
+    """
+    cols = all_data_columns(types, sensors)
+    recs = []
+    for meta, typemap, rows in parts:
+        part = meta.get("part")
+        for tid, (ln, name, fmt) in typemap.items():
+            names = columns(name, fmt, ln)
+            for rec in rows.get(name, []):
+                d = dict(zip(names, rec))
+                d["part"] = part
+                d["type"] = name
+                recs.append((d, rec))
+    recs.sort(key=lambda item: (item[0]["t_ms"], item[0].get("part") or 0, item[0]["type"]))
+
+    prev_bits = 0
+    out = []
+    for d, rec in recs:
+        d["t_s"] = d["t_ms"] / 1000.0
+        name = d["type"]
+        if name == "status":
+            pm, am = d.get("present_mask", 0), d.get("alive_mask", 0)
+            for i, s in enumerate(sensors):
+                p, a = pm >> i & 1, am >> i & 1
+                d[s] = "OK" if a else ("STALE" if p else "ABSENT")
+        elif name in ("fault_daq", "fault_inv", "pit_alert"):
+            what, state, detail, prev_bits = _fault_readable(name, rec, fault_names, prev_bits)
+            d["what"], d["state"], d["detail"] = what, state, detail
+        out.append([d[c] if c in d else "" for c in cols])
+    return cols, out
+
+
+def write_all_data_csv(path, cols, rows):
+    with open(path, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(cols)
+        w.writerows(rows)
+
+
+def write_all_data_sheets(wb, cols, data, max_data_rows=EXCEL_ALL_DATA_MAX_ROWS):
+    """Write All Data, then All Data 2, All Data 3, ... if the table exceeds max_data_rows.
+
+    Sheets are inserted immediately after Summary (index 1, 2, ...). Header is frozen
+    and autofilter is on. max_data_rows is overridable so the split can be unit-tested
+    without building a million-row workbook.
+    """
+    from openpyxl.styles import Font
+    from openpyxl.utils import get_column_letter
+
+    if max_data_rows < 1:
+        raise ValueError("max_data_rows must be at least 1")
+    n = len(data)
+    nsheets = max(1, (n + max_data_rows - 1) // max_data_rows)
+    last_col = get_column_letter(len(cols))
+    for i in range(nsheets):
+        chunk = data[i * max_data_rows:(i + 1) * max_data_rows]
+        title = "All Data" if i == 0 else "All Data %d" % (i + 1)
+        s = wb.create_sheet(title[:31], 1 + i)
+        s.append(cols)
+        for c in s[1]:
+            c.font = Font(bold=True)
+        for r in chunk:
+            s.append([None if v == "" else v for v in r])
+        s.freeze_panes = "A2"
+        s.auto_filter.ref = "A1:%s%d" % (last_col, s.max_row)
+    return nsheets
+
+
 def write_csvs(outdir, merged, types, events, st_cols, st_rows):
     for tid, (ln, name, fmt) in sorted(types.items()):
         with open(os.path.join(outdir, name + ".csv"), "w", newline="") as f:
@@ -182,7 +312,8 @@ def write_csvs(outdir, merged, types, events, st_cols, st_rows):
             w = csv.writer(f); w.writerow(st_cols); w.writerows(st_rows)
 
 
-def write_excel(path, metas, merged, types, events, st_cols, st_rows):
+def write_excel(path, metas, merged, types, events, st_cols, st_rows, all_cols=None, all_rows=None,
+                max_data_rows=EXCEL_ALL_DATA_MAX_ROWS):
     from openpyxl import Workbook
     from openpyxl.styles import Font
     wb = Workbook()
@@ -208,6 +339,9 @@ def write_excel(path, metas, merged, types, events, st_cols, st_rows):
         ws.append([name, len(merged.get(name, []))])
     ws.column_dimensions["A"].width = 26
     ws.column_dimensions["I"].width = 48
+
+    if all_cols is not None:
+        write_all_data_sheets(wb, all_cols, all_rows or [], max_data_rows=max_data_rows)
 
     def sheet(title, cols, data):
         s = wb.create_sheet(title[:31])
@@ -352,7 +486,9 @@ def main(argv=None):
         os.makedirs(out, exist_ok=True)
         events = fault_events(merged, fault_names)
         st_cols, st_rows = status_table(merged, sensors)
+        all_cols, all_rows = build_all_data(parts, types, sensors, fault_names)
         write_csvs(out, merged, types, events, st_cols, st_rows)
+        write_all_data_csv(os.path.join(out, "all_data.csv"), all_cols, all_rows)
         print("boot %d: format v%d, %d part(s)%s, git %s" % (boot, metas[0]["version"], len(parts),
               (" MISSING parts %s" % gaps) if gaps else "", metas[0].get("git") or "-"))
         for m in metas:
@@ -361,10 +497,11 @@ def main(argv=None):
             print("  %-11s %7d rows" % (name, len(merged.get(name, []))))
         if events:
             print("  fault events: %d (first: %s)" % (len(events), ", ".join("%s %s@%dms" % (e[1], e[2], e[0]) for e in events[:3])))
+        print("  all data:     %7d rows -> all_data.csv" % len(all_rows))
         if not a.no_excel:
             try:
                 x = os.path.join(out, "boot_%05d.xlsx" % boot)
-                write_excel(x, metas, merged, types, events, st_cols, st_rows)
+                write_excel(x, metas, merged, types, events, st_cols, st_rows, all_cols, all_rows)
                 print("  excel:", x)
             except ImportError:
                 print("  (openpyxl not installed, skipping Excel)")

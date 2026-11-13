@@ -6,7 +6,7 @@
 // The SD logger writes data+timestamp only when newSample is true, then clears it.
 template <typename T>
 struct SensorSample {
-    uint32_t timestampMs = 0;   // from the shared elapsedMillis daqClock
+    uint32_t timestampMs = 0;   // from the shared elapsedMillis current_time_ms (main.cpp)
     T        data{};            // human units (m/s, degC, g, ...)
     volatile bool newSample = false;
 };

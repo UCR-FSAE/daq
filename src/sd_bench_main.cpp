@@ -1,0 +1,41 @@
+// SD logger bench test ONLY (env teensy41_sdbench). Not part of the real firmware.
+// Fake car speed (50 Hz) and IMU (100 Hz) so the logger can be tested on a bare Teensy 4.1.
+#include <Arduino.h>
+#include "SensorSamples.h"
+#include "SDLogger.h"
+#include "LogConfig.h"
+
+elapsedMillis current_time_ms;
+
+static bool fakeWheelSpeed(float& speedMps) {
+    static elapsedMillis t; if (t < 20) return false; t = 0;
+    speedMps = 12.3f; return true;
+}
+static bool fakeImu(ImuData& d) {
+    static elapsedMillis t; if (t < 10) return false; t = 0;
+    d = {0, 0, 9.81f, 0, 0, 0}; return true;
+}
+
+void setup() {
+    Serial.begin(115200);
+    if (!SDLogger::begin(kLogTypes, kNumLogTypes)) Serial.println("SD init failed");
+}
+
+void loop() {
+    float v;
+    if (fakeWheelSpeed(v)) {
+        carSpeedSample.data.speedMps = v;
+        carSpeedSample.timestampMs = current_time_ms;
+        carSpeedSample.newSample = true;
+    }
+    if (fakeImu(imuSample.data)) { imuSample.timestampMs = current_time_ms; imuSample.newSample = true; }
+
+    logSensorsToSD();
+
+    static elapsedMillis report;
+    if (report > 5000) {
+        report = 0;
+        Serial.printf("dropped=%lu maxBuf=%u ok=%d\n",
+                      (unsigned long)SDLogger::droppedRecords(), (unsigned)SDLogger::maxBufferUsed(), SDLogger::ok());
+    }
+}

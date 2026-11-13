@@ -28,6 +28,7 @@ enum Fault : uint8_t {
     FAULT_IMU_INIT_FAIL, // IMU-01  WHO_AM_I (0Fh) doesn't read 0x6B
     FAULT_TC_INIT_FAIL,  // TC-01   device ID (20h) doesn't read 0x40/0x41
     FAULT_CAN_BUS_OFF,   // CAN-01  FlexCAN error-passive or bus-off
+    FAULT_SD_FULL,       // SD-04   no room for the next log part (logger never deletes by default)
 
     // Inverter faults (INV-xx) arrive via CAN 0x0AB and are logged by logInverterFaults().
     // BMS/VCU faults will be logged once their CAN IDs are defined.

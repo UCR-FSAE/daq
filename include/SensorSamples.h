@@ -15,9 +15,11 @@ extern SensorSample<BrakeTempData> brakeTempSample;
 extern SensorSample<ShockPotData>  shockPotSample;
 extern SensorSample<SteeringData>  steeringSample;
 
-// Starts the SD logger (new boot number, first rolling part). Call once in setup().
+// Starts the SD logger (new boot number, first rolling part), registers every sensor
+// for health tracking and hooks the fault tracker into the log. Call once in setup().
+// (implemented in DaqLog.cpp)
 bool sdLoggerBegin();
 
-// Logs every sensor whose flag is set, then lets the SD card write if it's free.
-// Non-blocking. Call once per loop().
+// Polls hot-plug sensors, logs every sensor whose flag is set, writes the 1 Hz status
+// record, then lets the SD card write if it's free. Non-blocking. Call once per loop().
 void logSensorsToSD();

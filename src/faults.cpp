@@ -46,6 +46,7 @@ static const FaultInfo FAULT_INFO[] = {
     {"IMU_INIT_FAIL", ACT_LOG | ACT_INVALID | ACT_RECOVER},
     {"TC_INIT_FAIL", ACT_LOG | ACT_INVALID | ACT_RECOVER},
     {"CAN_BUS_OFF", ACT_LOG | ACT_RECOVER | ACT_ALERT_PIT},
+    {"SD_FULL", ACT_LOG | ACT_ALERT_PIT},
 };
 // Compile error if a fault is missing from this table.
 static_assert(sizeof(FAULT_INFO) / sizeof(FAULT_INFO[0]) == FAULT_COUNT, "FAULT_INFO must have exactly 1 row per Fault");

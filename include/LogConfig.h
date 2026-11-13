@@ -11,6 +11,8 @@ static const SDLogger::TypeInfo kLogTypes[] = {
     {REC_STEERING,   sizeof(SteeringData),  "steering",   "<f"},
     {REC_FAULT_DAQ,  sizeof(uint32_t),      "fault_daq",  "<I"},
     {REC_FAULT_INV,  sizeof(InvFaultData),  "fault_inv",  "<4H"},
+    {REC_PIT_ALERT,  sizeof(PitAlertData),  "pit_alert",  "<3B"},
+    {REC_STATUS,     sizeof(StatusData),    "status",     "<3H8IHII"},
 };
 static const uint8_t kNumLogTypes = sizeof(kLogTypes) / sizeof(kLogTypes[0]);
 

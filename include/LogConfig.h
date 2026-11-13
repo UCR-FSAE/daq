@@ -11,3 +11,5 @@ static const SDLogger::TypeInfo kLogTypes[] = {
     {REC_STEERING,   sizeof(SteeringData),  "steering",   "<f"},
 };
 static const uint8_t kNumLogTypes = sizeof(kLogTypes) / sizeof(kLogTypes[0]);
+
+static const SDLogger::HeaderInfo kLogHeader = {kLogTypes, kNumLogTypes, nullptr, 0, nullptr, 0};

@@ -13,6 +13,7 @@ struct SensorSample {
 
 // Record IDs (keep in sync with tools/decode_sdlog.py and the file header table)
 enum RecordId : uint8_t {
+    REC_PAD        = 0,   // filler before each 1 s sync (SDLogger), decoder skips it
     REC_CAR_SPEED  = 1,   // post-processed car speed only (not raw pulses)
     REC_IMU        = 2,
     REC_BRAKE_TEMP = 3,

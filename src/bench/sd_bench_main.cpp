@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include "SensorSamples.h"
 #include "SDLogger.h"
-#include "LogConfig.h"
 
 elapsedMillis current_time_ms;
 
@@ -18,7 +17,8 @@ static bool fakeImu(ImuData& d) {
 
 void setup() {
     Serial.begin(115200);
-    if (!SDLogger::begin(kLogTypes, kNumLogTypes)) Serial.println("SD init failed");
+    if (!sdLoggerBegin()) Serial.println("SD init failed");
+    Serial.printf("SD startup %lu ms\n", (unsigned long)SDLogger::stats().startupMs);
 }
 
 void loop() {
@@ -35,7 +35,10 @@ void loop() {
     static elapsedMillis report;
     if (report > 5000) {
         report = 0;
-        Serial.printf("dropped=%lu maxBuf=%u ok=%d\n",
-                      (unsigned long)SDLogger::droppedRecords(), (unsigned)SDLogger::maxBufferUsed(), SDLogger::ok());
+        SDLogger::Stats s = SDLogger::stats();
+        Serial.printf("boot=%lu part=%u fileBytes=%lu dropped=%lu maxBuf=%lu maxSvc=%luus free=%luMB err=%lu ok=%d full=%d\n",
+                      (unsigned long)s.bootNo, s.part, (unsigned long)s.fileBytes, (unsigned long)s.droppedRecords,
+                      (unsigned long)s.maxBufUsed, (unsigned long)s.maxServiceUs, (unsigned long)s.freeMB,
+                      (unsigned long)s.writeErrors, s.ok, s.full);
     }
 }

@@ -1,7 +1,5 @@
 #include <Arduino.h>
 #include <elapsedMillis.h>
-#include "SDLogger.h"
-#include "LogConfig.h"
 #include "SensorSamples.h"
 // See "DAQ DOC" for peripheral PNs
 // See "VCU Pinouts" google sheet for pinouts
@@ -47,8 +45,8 @@ void setup() {
   // serial writing
   Serial.begin(115200);
 
-  // SD card logger (new numbered file every boot)
-  if (!SDLogger::begin(kLogTypes, kNumLogTypes)) Serial.println("SD init failed");
+  // SD card logger (new boot number, rolling 64 MB parts)
+  if (!sdLoggerBegin()) Serial.println("SD init failed");
 }
 
 void loop() {

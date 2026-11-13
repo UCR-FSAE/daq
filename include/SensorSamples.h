@@ -15,6 +15,9 @@ extern SensorSample<BrakeTempData> brakeTempSample;
 extern SensorSample<ShockPotData>  shockPotSample;
 extern SensorSample<SteeringData>  steeringSample;
 
+// Starts the SD logger (new boot number, first rolling part). Call once in setup().
+bool sdLoggerBegin();
+
 // Logs every sensor whose flag is set, then lets the SD card write if it's free.
 // Non-blocking. Call once per loop().
 void logSensorsToSD();

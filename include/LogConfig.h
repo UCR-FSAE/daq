@@ -14,5 +14,10 @@ static const SDLogger::TypeInfo kLogTypes[] = {
     {REC_PIT_ALERT,  sizeof(PitAlertData),  "pit_alert",  "<3B"},
     {REC_STATUS,     sizeof(StatusData),    "status",     "<3H8IHII"},
 };
+// Payload sizes must match the Python struct formats above (checked at compile time).
+static_assert(sizeof(InvFaultData) == 8,  "fault_inv must match <4H");
+static_assert(sizeof(PitAlertData) == 3,  "pit_alert must match <3B");
+static_assert(sizeof(StatusData)   == 48, "status must match <3H8IHII");
+
 static const uint8_t kNumLogTypes = sizeof(kLogTypes) / sizeof(kLogTypes[0]);
 

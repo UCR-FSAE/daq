@@ -9,7 +9,8 @@ static const SDLogger::TypeInfo kLogTypes[] = {
     {REC_BRAKE_TEMP, sizeof(BrakeTempData), "brake_temp", "<4f"},
     {REC_SHOCK_POT,  sizeof(ShockPotData),  "shock_pot",  "<4f"},
     {REC_STEERING,   sizeof(SteeringData),  "steering",   "<f"},
+    {REC_FAULT_DAQ,  sizeof(uint32_t),      "fault_daq",  "<I"},
+    {REC_FAULT_INV,  sizeof(InvFaultData),  "fault_inv",  "<4H"},
 };
 static const uint8_t kNumLogTypes = sizeof(kLogTypes) / sizeof(kLogTypes[0]);
 
-static const SDLogger::HeaderInfo kLogHeader = {kLogTypes, kNumLogTypes, nullptr, 0, nullptr, 0};

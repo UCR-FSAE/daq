@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <elapsedMillis.h>
 #include "SensorSamples.h"
+#include "faults.h"
 // See "DAQ DOC" for peripheral PNs
 // See "VCU Pinouts" google sheet for pinouts
 
@@ -67,4 +68,6 @@ void loop() {
   // write to sd card
   logSensorsToSD();
 
+  // check for faults + run their actions (keep this at the end of loop)
+  checkFaults(current_time_ms);
 }

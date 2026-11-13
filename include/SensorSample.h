@@ -19,6 +19,8 @@ enum RecordId : uint8_t {
     REC_BRAKE_TEMP = 3,
     REC_SHOCK_POT  = 4,
     REC_STEERING   = 5,
+    REC_FAULT_DAQ  = 20,  // faults.h FREC_DAQ_FAULTS: uint32 fault bitmask, on every change
+    REC_FAULT_INV  = 21,  // faults.h FREC_INV_FAULTS: raw inverter CAN 0x0AB (4x uint16), on change
     REC_EVENT      = 255  // text/marker
 };
 
@@ -28,3 +30,4 @@ struct __attribute__((packed)) ImuData      { float ax, ay, az, gx, gy, gz; };  
 struct __attribute__((packed)) BrakeTempData{ float tempC[4]; };                       // "<4f"
 struct __attribute__((packed)) ShockPotData { float travelMm[4]; };                    // "<4f"
 struct __attribute__((packed)) SteeringData { float angleDeg; };                       // "<f"
+struct __attribute__((packed)) InvFaultData { uint16_t postLo, postHi, runLo, runHi; };  // "<4H"

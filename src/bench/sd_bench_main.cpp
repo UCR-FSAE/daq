@@ -3,6 +3,9 @@
 #include <Arduino.h>
 #include "SensorSamples.h"
 #include "SDLogger.h"
+#include "faults.h"
+
+void faultDemoStep(uint32_t t);   // fault_demo.cpp
 
 elapsedMillis current_time_ms;
 
@@ -28,7 +31,8 @@ void loop() {
         carSpeedSample.timestampMs = current_time_ms;
         carSpeedSample.newSample = true;
     }
-    if (fakeImu(imuSample.data)) { imuSample.timestampMs = current_time_ms; imuSample.newSample = true; }
+    if (fakeImu(imuSample.data)) { imuSample.timestampMs = current_time_ms; imuSample.newSample = true; last_imu_ms = current_time_ms; }
+    faultDemoStep(current_time_ms);
 
     logSensorsToSD();
 
@@ -41,4 +45,6 @@ void loop() {
                       (unsigned long)s.maxBufUsed, (unsigned long)s.maxServiceUs, (unsigned long)s.freeMB,
                       (unsigned long)s.writeErrors, s.ok, s.full);
     }
+
+    checkFaults(current_time_ms);
 }
